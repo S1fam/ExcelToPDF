@@ -2,22 +2,19 @@
 import pandas as pd
 import glob
 from fpdf import FPDF
+from pathlib import Path
 
 filepaths = glob.glob("Invoices/*.xlsx")
-print(filepaths)
 
 for filepath in filepaths:
     filepath = filepath.strip("~$")
     df = pd.read_excel(filepath, sheet_name="Sheet 1")
-    print(df)
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.add_page()
 
-    filename = filepath  # intermediate variable
-    invoice_number = filename.strip('Invoices\\\\')
-    number, date = invoice_number.split(sep="-")
-    date = date.strip(".xlsx")
-    print(number, date)
+    filename = Path(filepath).stem  # gets us string with name without path, format
+    number, date = filename.split(sep="-")
+
     pdf.set_font("Helvetica", "B", 20)
     pdf.cell(w=0, h=10, txt=f"Invoice nr. {number}", border=0, ln=1, align="L")
     pdf.cell(w=0, h=10, txt=f"Date {date}", border=0, ln=1, align="L")
@@ -46,6 +43,4 @@ for filepath in filepaths:
     pdf.cell(w=0, h=10, txt=f"The total due amount is {total}", border=0, ln=1, align="L")
     pdf.cell(w=0, h=10, txt=f"PythonHow", border=0, ln=1, align="L")
 
-    pdf_file_name = filename.strip("Invoices\\\\")  # we strip the filepath
-    pdf_file_name = pdf_file_name.strip(".xlsx")  # we strip the format
-    pdf.output(f"PDFs/{pdf_file_name}.pdf")  # we generate file with pdf format
+    pdf.output(f"PDFs/{filename}.pdf")  # we generate file with pdf format
